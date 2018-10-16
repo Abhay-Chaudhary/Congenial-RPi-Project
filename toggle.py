@@ -4,10 +4,8 @@ from gi.repository import Gtk
 
 import os
 
-import RPi.GPIO as GPIO
-
-from constants import _img_dir, _img_prefix, _img_resolution, _img_format, _log_file_name, next_img_index
-from camera_control import get_next_image_index, take_picture
+from constants import _img_dir, _img_prefix, _img_resolution, _img_format, _log_file_name, next_img_index, screen_width, screen_height
+from camera_control import *
 from led_control import *
 
 
@@ -37,8 +35,10 @@ def on_button_toggled(button, name):
 class ToggleButtonWindow(Gtk.Window):
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="ToggleButton Demo")
+        
+        Gtk.Window.__init__(self, title="NIR Camera")
         self.set_border_width(10)
+        self.move(round(screen_width*0.5), round(screen_height*0.75))
 
         hbox = Gtk.Box(spacing=6)
         self.add(hbox)
@@ -51,13 +51,17 @@ class ToggleButtonWindow(Gtk.Window):
         button.connect("toggled", on_button_toggled, "ir")
         hbox.pack_start(button, True, True, 0)
 
+        button = Gtk.Button.new_with_label("Preview")
+        button.connect("clicked", preview)
+        hbox.pack_start(button, True, True, 0)
+        
         button = Gtk.Button.new_with_label("Capture")
-        button.connect("clicked", take_picture)
+        button.connect("clicked", capture)
         hbox.pack_start(button, True, True, 0)
 
 def setup():
     """
-    Initialize GPIO pins and image directory
+    Initialize image directory
     :return:
     """
     # check whether the image directory exists. if not create one
@@ -83,3 +87,4 @@ Gtk.main()
 # CLOSE FILE WHEN PROGRAM ENDS
 log_file.write('Exiting\n')
 log_file.close()
+close_camera()

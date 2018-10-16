@@ -3,7 +3,9 @@ import os
 from time import sleep
 import picamera
 
-from constants import _img_format, next_img_index
+from constants import _img_format, next_img_index, _img_dir, _img_prefix, screen_width, screen_height
+
+camera = picamera.PiCamera()
 
 def get_next_image_index(img_dir):
     """
@@ -29,13 +31,17 @@ def get_next_image_index(img_dir):
         return max(cur_indexes) + 1
 
 
-def take_picture(button):
+def preview(button):
     actions = []
+    actions.append('Starting preview\n')
+    camera.start_preview(fullscreen=False, window = (10, 10, int(screen_width*0.75), int(screen_height*0.75)))
+
+
+    return actions
+
+def capture(button):
     global next_img_index
-    camera = picamera.PiCamera()
-    actions.append('camera_opened\n')
-    camera.start_preview()
-    sleep(10)
+    actions = []
     img_file = _img_dir + _img_prefix + str(next_img_index) + '.' + _img_format
     print (["next_index", next_img_index])
     next_img_index += 1
@@ -44,7 +50,11 @@ def take_picture(button):
     print(img_file + " saved")
     actions.append('Captured image\n')
     camera.stop_preview()
-    camera.close()
-    actions.append('Camera closed\n')
+    actions.append('Stopping preview\n')
     return actions
     
+def close_camera():
+    actions = []
+    camera.close()
+    actions.append('Closing camera\n')
+    return actions
